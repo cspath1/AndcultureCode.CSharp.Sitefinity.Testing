@@ -1,12 +1,16 @@
 ﻿using AndcultureCode.CSharp.Sitefinity.Testing.Models.Configuration;
 using AndcultureCode.CSharp.Sitefinity.Testing.Models.Content;
+using AndcultureCode.CSharp.Testing.Factories;
+using AndcultureCode.CSharp.Testing.Tests;
 using System;
+using System.Reflection;
 using Xunit.Abstractions;
 
 namespace AndcultureCode.CSharp.Sitefinity.Testing
 {
-    public class ODataServiceTestsBase<TService, TModel> where TModel : Content, new()
+    public class ODataServiceTestsBase<TService, TModel> : BaseTest where TModel : Content, new()
     {
+
         #region Members
 
         public static string SF_TEST_PREFIX = "sf_test_";
@@ -15,17 +19,25 @@ namespace AndcultureCode.CSharp.Sitefinity.Testing
         public ODataSessionFixture Fixture { get; }
         public TModel Model { get; set; }
         public TestingSettings ODataTestSettings { get { return Fixture.Session.ODataTestSettings; } }
-        public ITestOutputHelper Output { get; set; }
         public TService Sut { get; set; }
 
         #endregion Members
 
+        static ODataServiceTestsBase()
+        {
+            // Clear all factories
+            FactoryExtensions.ClearFactoryDefinitions();
+
+            // Load factories
+            LoadFactories(typeof(ODataServiceTestsBase<TService, TModel>).GetTypeInfo().Assembly);
+        }
+
         public ODataServiceTestsBase(
             ODataSessionFixture fixture,
-            ITestOutputHelper output)
+            ITestOutputHelper output
+        ) : base(output)
         {
-            this.Fixture = fixture;
-            this.Output = output;
+            Fixture = fixture;
         }
 
         #region Public Methods
